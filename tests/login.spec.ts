@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { BASE_URL } from '../config';
 import { LoginPage } from '../pages/login-page';
 
 const EMAIL_VALIDO = process.env.TEST_EMAIL!;
@@ -26,7 +27,7 @@ test('O usuário não consegue fazer login com e-mail não cadastrado', async ({
 
 
 test('O formulário não deve ser enviado com campos vazios', async ({ page }) => {
-  await page.goto('https://omnibusdrive.up.railway.app/login');
+  await page.goto('${BASE_URL}/login');
   await page.click('button[type="submit"]');
   const emailInput = page.locator('input[name="email"]');
   await expect(emailInput).toHaveAttribute('type', 'email');
