@@ -14,12 +14,4 @@ export class SubjectsPage {
         await this.page.goto(this.url);
     }
 
-    async createSubject(nameId: string, abreviationId: string, teacher: string, semesterId: string) {
-        await this.page.click('text=Adicionar matéria');
-        await this.page.selectOption('#modalSubjectName', nameId);
-        await this.page.selectOption('#modalSubjectAbreviation', abreviationId);
-        await this.page.fill('#modalSubjectTeacher', teacher);
-        await this.page.selectOption('#modalSubjectSemester', semesterId);
-        await this.page.click('text=Salvar matéria');
-    }
 }
