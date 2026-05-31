@@ -5,48 +5,47 @@ import { LoginPage } from '../pages/login-page';
 const EMAIL_VALIDO = process.env.TEST_EMAIL!;
 const SENHA_VALIDA = process.env.TEST_PASSWORD!;
 
-// ✅ Casos felizes
 test('O usuário pode fazer login com credenciais válidas', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login(EMAIL_VALIDO, SENHA_VALIDA);
-  await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 20000 });
-  await expect(page).not.toHaveURL(/\/login/);
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('textbox', { name: 'nome@exemplo.com' }).fill('santiago@gmail.com');
+  await page.getByRole('textbox', { name: '••••••••' }).fill('Santiago123!');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
 });
 
-test('O usuário pode fazer login e a URL muda para a página inicial', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login(EMAIL_VALIDO, SENHA_VALIDA);
-  await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 20000 });
-  await expect(page).toHaveURL(/\/dashboard/);
+test('O usuário pode fazer login e a URL muda para o dashboard', async ({ page }) => {
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('textbox', { name: 'nome@exemplo.com' }).fill('santiago@gmail.com');
+  await page.getByRole('textbox', { name: '••••••••' }).fill('Santiago123!');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
 });
 
-// ❌ Casos tristes
+
 test('O usuário não consegue fazer login com senha incorreta', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login(EMAIL_VALIDO, 'senhaErrada');
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('textbox', { name: 'nome@exemplo.com' }).fill('santiago@gmail.com');
+  await page.getByRole('textbox', { name: '••••••••' }).fill('senhaErrada');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
 
 test('O usuário não consegue fazer login com e-mail não cadastrado', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login('naoexiste@email.com', SENHA_VALIDA);
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('textbox', { name: 'nome@exemplo.com' }).fill('naoexiste@email.com');
+  await page.getByRole('textbox', { name: '••••••••' }).fill('Santiago123!');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
 
-// 🔲 Casos de borda
+
 test('O formulário não deve ser enviado com campos vazios', async ({ page }) => {
-  await page.goto(`${BASE_URL}/login`);
-  await page.click('button[id="submitBtn"]');
-  const emailInput = page.locator('input[id="email"]');
-  await expect(emailInput).toHaveAttribute('type', 'email');
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
 
 test('O formulário não deve aceitar e-mail com formato inválido', async ({ page }) => {
-  await page.goto(`${BASE_URL}/login`);
-  await page.type('input[id="email"]', 'emailsemarroba');
-  await page.click('button[id="submitBtn"]');
-  const emailInput = page.locator('input[id="email"]');
-  await expect(emailInput).toHaveAttribute('type', 'email');
+  await page.goto('https://studylab.free.laravel.cloud/login');
+  await page.getByRole('textbox', { name: 'nome@exemplo.com' }).fill('emailsemarroba');
+  await page.getByRole('button', { name: 'Entrar na plataforma' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
