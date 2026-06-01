@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -19,7 +20,9 @@ dotenv.config();
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  globalSetup: require.resolve('./global-setup'),
+  fullyParallel: false,
+
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -34,6 +37,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    storageState: 'auth.json',
     trace: 'on-first-retry',
   },
 
@@ -42,8 +46,9 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], launchOptions: {
-          slowMo: 500,
-        } },
+          slowMo: 500},
+      },
+      workers: 1,
     },
 
     // {
