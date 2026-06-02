@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('link', { name: 'Ver Provas' }).click();
 });
 
-test.describe.serial('CRUD de atividades', () => {
+test.describe.serial('CRUD de provas', () => {
     test.describe('Casos felizes', () => {
         test('O usuário pode cadastrar uma prova com sucesso', async ({ page }) => {
             await page.getByRole('button', { name: 'Adicionar' }).first().click();

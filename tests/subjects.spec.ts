@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login-page';
 import { BASE_URL } from '../config';
 
-const EMAIL_VALIDO_MATERIA = process.env.TEST_EMAIL_MATERIA!;
-const SENHA_VALIDA_MATERIA = process.env.TEST_PASSWORD_MATERIA!;
+const EMAIL_VALIDO = process.env.TEST_EMAIL!;
+const SENHA_VALIDA = process.env.TEST_PASSWORD!;
 
 test.beforeEach(async ({ page }) => {
   const loginPage = new LoginPage(page);
   await page.goto(`${BASE_URL}/login`);
-  await loginPage.login(EMAIL_VALIDO_MATERIA, SENHA_VALIDA_MATERIA);
+  await loginPage.login(EMAIL_VALIDO, SENHA_VALIDA);
   await expect(page).toHaveURL(/\/dashboard/);
 
   await page.getByRole('button', { name: 'Fixar menu' }).click();
