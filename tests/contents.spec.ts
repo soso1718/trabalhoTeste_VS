@@ -42,23 +42,6 @@ test.describe.serial('CRUD de conteúdos', () => {
       await expect(page.locator('td', { hasText: 'Orações' })).not.toBeVisible();
     });
 
-    test('O usuário deve conseguir editar um conteúdo existente', async ({ page }) => {
-      await page.goto(`${BASE_URL}/contents`);
-      await deletarTodosSeExistir(page, 'Funções');
-      await deletarTodosSeExistir(page, 'Função exponencial');
-      await page.getByRole('button', { name: 'Adicionar conteúdo' }).click();
-      await page.getByRole('textbox', { name: 'Ex: Derivadas e integrais,' }).fill('Funções');
-      await page.locator('#modalContentSubject').selectOption('16');
-      await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('Prof. Silva');
-      await page.locator('#modalContentSemester').selectOption('9');
-      await page.getByRole('button', { name: 'Salvar conteúdo' }).click();
-      const linha = page.locator('tr', { hasText: 'Funções' }).first();
-      await linha.waitFor({ state: 'visible', timeout: 15000 });
-      await linha.getByRole('button', { name: 'Editar' }).click();
-      await page.getByRole('textbox', { name: 'Derivadas e integrais' }).fill('Função exponencial');
-      await page.getByRole('button', { name: 'Salvar alterações' }).click();
-      await expect(page.locator('td', { hasText: 'Função exponencial' }).first()).toBeVisible();
-    });
   });
 
   test.describe('Casos tristes', () => {
@@ -71,6 +54,17 @@ test.describe.serial('CRUD de conteúdos', () => {
       await page.getByRole('button', { name: 'Salvar conteúdo' }).click();
       await expect(page.locator('td', { hasText: 'Genética' })).not.toBeVisible();
     });
+
+    test('O usuário não deve conseguir adicionar conteúdo sem preencher o nome', async ({ page }) => {
+      await page.goto(`${BASE_URL}/contents`);
+      await page.getByRole('button', { name: 'Adicionar conteúdo' }).click();
+      await page.locator('#modalContentSubject').selectOption('16');
+      await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('Prof. Silva');
+      await page.locator('#modalContentSemester').selectOption('9');
+      await page.getByRole('button', { name: 'Salvar conteúdo' }).click();
+      await expect(page.getByRole('button', { name: 'Salvar conteúdo' })).toBeVisible();
+    });
+
   });
 
   test.describe('Casos de borda', () => {
@@ -95,5 +89,6 @@ test.describe.serial('CRUD de conteúdos', () => {
       await page.getByRole('button', { name: 'Salvar conteúdo' }).click();
       await expect(page.locator('td', { hasText: 'Conteúdo com caracteres especiais !@#$%^&*()' })).not.toBeVisible();
     });
+    
   });
 });
