@@ -3,20 +3,17 @@ import { BASE_URL } from '../config';
 
 async function deletarSeExistir(page: any, nome: string) {
   const linha = page.locator('tr', { hasText: nome }).first();
-  if (await linha.isVisible()) {
-    await linha.getByRole('button', { name: 'Excluir' }).click();
-    await page.getByRole('button', { name: 'Sim, excluir' }).click();
-  }
+  const visivel = await linha.isVisible().catch(() => false);
+  if (!visivel) return;
+  await linha.getByRole('button', { name: 'Excluir' }).click();
+  await page.getByRole('button', { name: 'Sim, excluir' }).click();
 }
 
 test.describe.serial('CRUD de matérias', () => {
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}/subjects`);
-  });
-
   test.describe('Casos felizes', () => {
     test('O usuário pode cadastrar uma matéria com sucesso', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Português');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Português' });
@@ -26,7 +23,8 @@ test.describe.serial('CRUD de matérias', () => {
       await expect(page.getByRole('cell', { name: 'Português' })).toBeVisible();
     });
 
-    test('O usuário pode editar uma matéria com sucesso', async ({ page }) => {
+    test('O usuário pode excluir uma matéria com sucesso', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Literatura');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Literatura' });
@@ -35,15 +33,15 @@ test.describe.serial('CRUD de matérias', () => {
       await page.getByRole('button', { name: 'Salvar matéria' }).click();
       const linha = page.locator('tr', { hasText: 'Literatura' }).first();
       await linha.waitFor({ state: 'visible', timeout: 15000 });
-      await linha.getByRole('button', { name: 'Editar' }).click();
-      await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('João Atualizado');
-      await page.getByRole('button', { name: 'Salvar alterações' }).click();
-      await expect(page.locator('td', { hasText: 'João Atualizado' })).toBeVisible();
+      await linha.getByRole('button', { name: 'Excluir' }).click();
+      await page.getByRole('button', { name: 'Sim, excluir' }).click();
+      await expect(page.locator('td', { hasText: 'Literatura' })).not.toBeVisible();
     });
   });
 
   test.describe('Casos tristes', () => {
     test('O usuário não pode cadastrar sem professor', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Biologia');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Biologia' });
@@ -52,24 +50,26 @@ test.describe.serial('CRUD de matérias', () => {
       await expect(page.locator('td', { hasText: 'Biologia' })).not.toBeVisible();
     });
 
-    test('O usuário não pode atualizar para um valor inválido', async ({ page }) => {
+    test('O usuário não pode cadastrar uma matéria duplicada', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Filosofia');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Filosofia' });
       await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('Joana');
       await page.locator('#modalSubjectSemester').selectOption('5');
       await page.getByRole('button', { name: 'Salvar matéria' }).click();
-      const linha = page.locator('tr', { hasText: 'Filosofia' }).first();
-      await linha.waitFor({ state: 'visible', timeout: 15000 });
-      await linha.getByRole('button', { name: 'Editar' }).click();
-      await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('0');
-      await page.getByRole('button', { name: 'Salvar alterações' }).click();
-      await expect(page.locator('td', { hasText: '0' })).not.toBeVisible();
+      await page.getByRole('button', { name: 'Adicionar matéria' }).click();
+      await page.locator('#modalSubjectName').selectOption({ label: 'Filosofia' });
+      await page.getByRole('textbox', { name: 'Ex: Prof. João Silva' }).fill('Joana');
+      await page.locator('#modalSubjectSemester').selectOption('5');
+      await page.getByRole('button', { name: 'Salvar matéria' }).click();
+      await expect(page.getByRole('cell', { name: 'Filosofia' }).nth(1)).not.toBeVisible();
     });
   });
 
   test.describe('Casos de borda', () => {
     test('O campo de professor só pode ter 255 caracteres', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Química');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Química' });
@@ -80,6 +80,7 @@ test.describe.serial('CRUD de matérias', () => {
     });
 
     test('O campo de professor não pode ter caracteres especiais', async ({ page }) => {
+      await page.goto(`${BASE_URL}/subjects`);
       await deletarSeExistir(page, 'Sociologia');
       await page.getByRole('button', { name: 'Adicionar matéria' }).click();
       await page.locator('#modalSubjectName').selectOption({ label: 'Sociologia' });
